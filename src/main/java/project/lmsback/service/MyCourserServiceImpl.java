@@ -53,6 +53,7 @@ public class MyCourserServiceImpl implements MyCourserService {
                     LectureWeekDTO dto = new LectureWeekDTO();
                     dto.setWeekId(week.getWeekId());
                     dto.setLectureId(week.getLecture().getLectureId());
+                    dto.setWeekNumber(week.getWeekNumber());
                     return dto;
                 })
                 .toList();
@@ -131,16 +132,20 @@ public class MyCourserServiceImpl implements MyCourserService {
     }
 
     @Override
-    public void saveAssignmentSubmit(MultipartFile file, Integer lectureId, Integer weekId, Integer stdtId) {
+    public void saveAssignmentSubmit(MultipartFile file, Integer lectureId, Integer weekNumber, Integer stdtId) {
 
+        // 주차 정보 가져오기
+        LectureWeek week = lectureWeekRepository
+                .findByLecture_LectureIdAndWeekNumber(lectureId, weekNumber)
+                .orElseThrow(() -> new RuntimeException("해당 주차 정보를 찾을 수 없습니다."));
 
         // 과제 엔티티 찾기
-        LectureAssignment assignment = lectureAssignmentRepository.findByWeek_WeekId(weekId)
+        LectureAssignment assignment = lectureAssignmentRepository.findByWeek(week)
                 .orElseThrow(() -> new RuntimeException("해당 주차의 과제가 없습니다."));
 
-        // 더미 파일 저장 처리 (DB에 저장된 FILE_ID 예시 사용)
+        // 파일 엔티티 생성 (더미)
         File dummyFile = new File();
-        dummyFile.setFileId(1); // 실제 저장 로직은 따로 필요
+        dummyFile.setFileId(1); // 실제 파일 저장 로직으로 대체 가능
         dummyFile.setFileName(file.getOriginalFilename());
         dummyFile.setFileSize((int) file.getSize());
 
@@ -153,8 +158,59 @@ public class MyCourserServiceImpl implements MyCourserService {
         submit.setSubmissionDate(LocalDateTime.now().toString());
         submit.setScore(null); // 아직 미채점
 
+        // 학생 정보 설정
+        submit.setStudent(new StudentInfo(stdtId));
+
+        // 저장
         assignmentSubmitRepository.save(submit);
     }
+
+    @Override
+    public AssignmentDTO getAssignmentByLectureAndWeek(Integer lectureId, Integer weekNumber) {
+        LectureWeek week = lectureWeekRepository
+                .findByLecture_LectureIdAndWeekNumber(lectureId, weekNumber)
+                .orElseThrow(() -> new RuntimeException("해당 주차 정보가 없습니다."));
+
+        LectureAssignment assignment = lectureAssignmentRepository
+                .findByWeek(week)
+                .orElseThrow(() -> new RuntimeException("해당 주차에 과제가 없습니다."));
+
+        AssignmentDTO dto = new AssignmentDTO();
+        dto.setAssignmentId(assignment.getAssignmentId());
+        dto.setTitle(assignment.getTitle());
+        dto.setDescription(assignment.getDescription());
+        dto.setStartDatetime(assignment.getStartDatetime());
+        dto.setEndDatetime(assignment.getEndDatetime());
+        dto.setLectureId(assignment.getLecture().getLectureId());
+        return dto;
+    }
+
+    @Override
+    public List<LectureContentDTO> getContentsByLectureAndWeek(Integer lectureId, Integer weekNumber) {
+        LectureWeek week = lectureWeekRepository
+                .findByLecture_LectureIdAndWeekNumber(lectureId, weekNumber)
+                .orElseThrow(() -> new RuntimeException("해당 주차 정보가 없습니다."));
+
+        return lectureContentRepository.findByWeek(week).stream()
+                .map(content -> {
+                    LectureContentDTO dto = new LectureContentDTO();
+                    dto.setLectureManagementId(content.getLectureManagementId());
+                    dto.setChapterName(content.getChapterName());
+                    dto.setOrderName(content.getOrderName());
+                    dto.setYoutubeVideoId(content.getYoutubeVideoId());
+                    dto.setVideoDuration(content.getVideoDuration());
+
+                    if (content.getFile() != null) {
+                        dto.setFileId(content.getFile().getFileId());
+                        dto.setFileName(content.getFile().getFileName());
+                    }
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+
 }
 
 

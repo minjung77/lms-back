@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.lmsback.domain.*;
@@ -23,11 +26,12 @@ public class st_MyCoursesController {
 
     // 학생이 수강 중인 강의 목록 조회
     @GetMapping("/mycourses")
-    public List<MycourseDTO> getMyCourses(@RequestParam Integer stdtId) {
+    public List<MycourseDTO> getMyCourses(@AuthenticationPrincipal UserDetails userDetails) {
+        // CustomUserDetailsService에서 설정한 username = stdtId
+        Integer stdtId = Integer.parseInt(userDetails.getUsername());
 
         List<MycourseDTO> courses = myCourserService.getCoursesByStudentId(stdtId);
-
-        log.info("🎯 프론트에 전달될 강의 수: {}", courses.size());
+        log.info("🎯 로그인한 학생 ID: {}, 강의 수: {}", stdtId, courses.size());
 
         return courses;
     }
@@ -38,38 +42,61 @@ public class st_MyCoursesController {
         return myCourserService.getWeeksByLectureId(lectureId);
     }
 
-    // 특정 주차의 콘텐츠 목록 조회
-    @GetMapping("/weeks/{weekId}/contents")
-    public List<LectureContentDTO> getContents(@PathVariable Integer weekId) {
-        return myCourserService.getContentsByWeekId(weekId);
-    }
+//    // 특정 주차의 콘텐츠 목록 조회
+//    @GetMapping("/weeks/{weekId}/contents")
+//    public List<LectureContentDTO> getContents(@PathVariable Integer weekId) {
+//        return myCourserService.getContentsByWeekId(weekId);
+//    }
 
+    // 특정 강의와 주차의 콘텐츠 목록 조회
+    @GetMapping("/{lectureId}/week/{weekNumber}/contents")
+    public List<LectureContentDTO> getContentsByLectureAndWeek(
+            @PathVariable Integer lectureId,
+            @PathVariable Integer weekNumber) {
+        return myCourserService.getContentsByLectureAndWeek(lectureId, weekNumber);
+    }
     @GetMapping("/{lectureId}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable Integer lectureId) {
         return myCourserService.getAssignmentsByLectureId(lectureId);
     }
+
+
+    
     @GetMapping("/assignments/{assignmentId}/submit")
-    public AssignmentSubmitDTO getSubmitStatus(@PathVariable Integer assignmentId) {
-        Integer stdtId = 20250001; // 로그인된 학생
+    public AssignmentSubmitDTO getSubmitStatus(@PathVariable Integer assignmentId, Authentication authentication) {
+        // ✅ JWT에서 추출된 사용자 ID 가져오기
+        String username = authentication.getName(); // sub에서 온 값 (ex. "20250001")
+        Integer stdtId = Integer.parseInt(username);
+
         return myCourserService.getSubmitStatus(assignmentId, stdtId);
     }
 
-    // 특정 주차(weekId)의 과제 정보 반환
-    @GetMapping("/weeks/{weekId}/assignment")
-    public ResponseEntity<AssignmentDTO> getAssignmentByWeek(@PathVariable Integer weekId) {
-        AssignmentDTO assignment = myCourserService.getAssignmentByWeekId(weekId);
+
+
+    @GetMapping("/{lectureId}/week/{weekNumber}/assignment")
+    public ResponseEntity<AssignmentDTO> getAssignmentByLectureAndWeek(
+            @PathVariable Integer lectureId,
+            @PathVariable Integer weekNumber
+    ) {
+        AssignmentDTO assignment = myCourserService.getAssignmentByLectureAndWeek(lectureId, weekNumber);
         return ResponseEntity.ok(assignment);
     }
+
+
+
 
     //
     @PostMapping("/submit")
     public ResponseEntity<String> submitAssignment(
             @RequestParam("file") MultipartFile file,
             @RequestParam("lectureId") Integer lectureId,
-            @RequestParam("weekId") Integer weekId,
-            @RequestParam("stdtId") Integer stdtId
+            @RequestParam("weekNumber") Integer weekNumber,
+            Authentication authentication  // ✅ 추가
     ) {
-        myCourserService.saveAssignmentSubmit(file, lectureId, weekId, stdtId);
+        // ✅ JWT 토큰의 sub에서 stdtId 추출
+        Integer stdtId = Integer.parseInt(authentication.getName());
+
+        myCourserService.saveAssignmentSubmit(file, lectureId, weekNumber, stdtId);
         return ResponseEntity.ok("제출 완료");
     }
 

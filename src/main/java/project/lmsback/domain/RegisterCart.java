@@ -1,7 +1,10 @@
 package project.lmsback.domain;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name = "REGISTER_CART")
 public class RegisterCart {

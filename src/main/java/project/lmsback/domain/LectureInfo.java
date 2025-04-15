@@ -1,15 +1,16 @@
 package project.lmsback.domain;
 
 import javax.persistence.*;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Table(name = "LECTURE_INFO")
-@Getter
-@Setter
 @ToString
+@Data
 public class LectureInfo {
 
     @Id

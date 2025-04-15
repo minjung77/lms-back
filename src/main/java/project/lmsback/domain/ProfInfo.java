@@ -1,13 +1,15 @@
 package project.lmsback.domain;
 
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+
 import javax.persistence.*;
 
+@Data
 @Entity
-@Getter
-@Setter
 @Table(name = "prof_info")
 public class ProfInfo {
 

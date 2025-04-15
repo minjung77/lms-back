@@ -61,9 +61,9 @@
 #                                                             ('질문게시판', '질문과 답변', 'Y');
 #
 # -- lecture_assignment 테이블에 과제 정보 추가
-# INSERT INTO lecture_assignment (assignment_id, title, description, start_datetime, end_datetime, submission_count, file_id, lecture_id) VALUES
-#                                                                                                                                             (1, '과제 1', '자료구조 기초 과제', '2025-03-10 10:00:00', '2025-03-15 23:59:59', 0, 1, 1001),
-#                                                                                                                                             (2, '과제 2', '운영체제 기초 과제', '2025-03-12 10:00:00', '2025-03-17 23:59:59', 0, 2, 1002);
+# INSERT INTO lecture_assignment (assignment_id, title, description, start_datetime, end_datetime, submission_count, file_id, lecture_id,weekid) VALUES
+#                                                                                                                                             (1, '과제 1', '자료구조 기초 과제', '2025-03-10 10:00:00', '2025-03-15 23:59:59', 0, 1, 1001,1),
+#                                                                                                                                             (2, '과제 2', '운영체제 기초 과제', '2025-03-12 10:00:00', '2025-03-17 23:59:59', 0, 2, 1002,1);
 #
 #
 # INSERT INTO assignment_submit (assignment_submit_id, submission_type, submission_date, score, assignment_id, file_id, lecture_id) VALUES
@@ -102,3 +102,7 @@
 #
 #
 #
+# -- lecture_assignment 테이블에 과제 정보 추가
+# INSERT INTO lecture_assignment (assignment_id, title, description, start_datetime, end_datetime, submission_count, file_id, lecture_id,weekid) VALUES
+#                                                                                                                                             (3, '과제 3', '자료구조2 기초 과제', '2025-03-14 10:00:00', '2025-03-18 23:59:59', 0, 1, 1001,3),
+#                                                                                                                                             (4, '과제 4', '운영체제2 기초 과제', '2025-03-15 10:00:00', '2025-03-19 23:59:59', 0, 2, 1002,4);

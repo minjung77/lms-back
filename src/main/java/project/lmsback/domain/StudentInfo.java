@@ -1,6 +1,7 @@
 package project.lmsback.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "stdt_info")
 @ToString
 public class StudentInfo {
@@ -57,4 +59,9 @@ public class StudentInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public StudentInfo(Integer stdtId) {
+        this.stdtId = stdtId;
+    }
+
 }

@@ -18,8 +18,11 @@ public interface MyCourserService {
     List<AssignmentDTO> getAssignmentsByLectureId(Integer weekId);
     AssignmentSubmitDTO getSubmitStatus(Integer assignmentId, Integer stdtId);
     AssignmentDTO getAssignmentByWeekId(Integer weekId);
+    void saveAssignmentSubmit(MultipartFile file, Integer lectureId, Integer weekNumber, Integer stdtId);
 
-    void saveAssignmentSubmit(MultipartFile file, Integer lectureId, Integer weekId, Integer stdtId);
 
+    AssignmentDTO getAssignmentByLectureAndWeek(Integer lectureId, Integer weekNumber);
+
+    List<LectureContentDTO> getContentsByLectureAndWeek(Integer lectureId, Integer weekNumber);
 
 }

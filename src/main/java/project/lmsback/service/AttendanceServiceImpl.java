@@ -11,6 +11,9 @@ import project.lmsback.repository.LectureContentRepository;
 import project.lmsback.repository.RegisterClassRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -48,5 +51,52 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             log.info("⛔ 이미 출석한 콘텐츠");
         }
+    }
+
+    @Override
+    public List<AttendanceStatusDTO> getAttendanceStatusByStudent(Integer stdtId) {
+        List<RegisterClass> registerClasses = registerClassRepository.findByStdtId_StdtId(stdtId);
+        List<AttendanceStatusDTO> result = new ArrayList<>();
+
+        for (RegisterClass reg : registerClasses) {
+            LectureInfo lecture = reg.getLectureId();
+            List<LectureContent> contents = lectureContentRepository.findByLecture_LectureId(lecture.getLectureId());
+
+            int total = contents.size();
+            int attended = 0;
+            List<WeekAttendanceDTO> weeklyStatus = new ArrayList<>();
+
+            for (LectureContent content : contents) {
+                Optional<Attendance> record = attendanceRepository.findByRegisterClassAndContent(reg, content);
+                String status;
+
+                if (record.isPresent() && Boolean.TRUE.equals(record.get().getIsAttended())) {
+                    attended++;
+                    status = "출석";
+                } else {
+                    status = "결석";
+                }
+
+                // 여기서 주차 번호와 제목 가져오기
+                int weekNumber = content.getWeek().getWeekNumber();
+                String weekTitle = content.getChapterName(); // 또는 content.getWeek().getTitle() 등 원하는 값
+
+                weeklyStatus.add(new WeekAttendanceDTO(weekNumber, weekTitle, status));
+            }
+
+            int rate = total == 0 ? 0 : (int) ((attended / (double) total) * 100);
+
+            AttendanceStatusDTO dto = new AttendanceStatusDTO(
+                    lecture.getLectureId(),
+                    lecture.getSubjectName(),
+                    lecture.getProfessor().getProfName(),
+                    rate,
+                    weeklyStatus
+            );
+
+            result.add(dto);
+        }
+
+        return result;
     }
 }

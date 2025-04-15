@@ -1,12 +1,12 @@
 package project.lmsback.domain;
 
-import lombok.Getter;
+import lombok.Data;
 
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name = "ROLE")
-@Getter
 public class Role {
 
     @Id

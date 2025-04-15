@@ -7,5 +7,5 @@ public class AttendanceRequestDto {
 
     private Integer lectureId;
     private Integer contentId;
-    private Integer stdtId;
+
 }
