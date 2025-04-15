@@ -2,13 +2,14 @@ package project.lmsback.controller.professor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import project.lmsback.domain.*;
 import project.lmsback.service.*;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +66,7 @@ public class pf_BoardController {
 
         return ResponseEntity.ok().body(dto);
     }
+
     @GetMapping("/videoUpload")
     public ResponseEntity<?> videoUpload() {
         ResponseEntity response = ResponseEntity.badRequest().build();
@@ -161,5 +163,29 @@ public class pf_BoardController {
         }
     }
 
+    @GetMapping("/down/{uuid}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable String uuid) {
+        File file = fileService.downFile_uuid(uuid);
+        try {
+            Path path = Path.of(file.getFilePath());
+            byte[] fileBytes = java.nio.file.Files.readAllBytes(path);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDisposition(ContentDisposition.attachment()
+                    .filename(file.getFileName())
+                    .build());
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileBytes);
+
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
     // 메세지 보내기 기능
 }
+

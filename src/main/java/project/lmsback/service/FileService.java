@@ -14,5 +14,5 @@ public interface FileService {
 
     File saveOne(File file);
 
-
+    File downFile_uuid(String uuid);
 }

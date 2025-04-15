@@ -43,35 +43,30 @@ public class LectureInfoServiceImpl implements LectureInfoService {
 
     @Override
     public List<LectureListsDTO> lectureList(Integer profId) {
-        // 1. 교수의 모든 강의 가져오기
         List<LectureInfo> lectures = lectureInfoRepository.findByProfessor_ProfId(profId);
         List<LectureListsDTO> dtoList = new ArrayList<>();
 
         for (LectureInfo lecture : lectures) {//개설강의 수만큼 반복//1001, 1003
             List<LectureWeek> weeks = lectureWeekRepository.findByLecture_LectureId(lecture.getLectureId());
-            log.info("Lecture ID: " + weeks.size());
             List<LectureContent> contents = lectureContentRepository.findByLecture_LectureId(lecture.getLectureId());
 
             for (LectureWeek week : weeks) {
                 for (LectureContent content : contents) {
                     log.info("content - lectureid : {} ", content.getLecture().getLectureId());
-                    if (content.getWeek().getWeekId().equals(week.getWeekNumber())) { // WeekNumber → WeekId로 비교 변경
+                    if (content.getWeek().getWeekId().equals(week.getWeekNumber())) {
                         log.info(">> content >> {}", content);
-//                        if (content.getFile() != null) {
-                            LectureListsDTO dto = LectureListsDTO.builder()
-                                    .lectureId(lecture.getLectureId())
-                                    .weekNumber(week.getWeekNumber())
-                                    .order_name(content.getOrderName())
-                                    .file_id(content.getFile().getFileId())
-                                    .file_name(content.getFile().getFileName())
-                                    .uuid(content.getFile().getUuid())
-                                    .subject_name(lecture.getSubjectName())
-                                    .subject_plan(lecture.getSubjectPlan())
-                                    .semester_cd(lecture.getSemesterCd())
-                                    .build();
-
-                            dtoList.add(dto);
-//                        }
+                        LectureListsDTO dto = LectureListsDTO.builder()
+                                .lectureId(lecture.getLectureId())
+                                .weekNumber(week.getWeekNumber())
+                                .order_name(content.getOrderName())
+                                .file_id(content.getFile().getFileId())
+                                .file_name(content.getFile().getFileName())
+                                .uuid(content.getFile().getUuid())
+                                .subject_name(lecture.getSubjectName())
+                                .subject_plan(lecture.getSubjectPlan())
+                                .semester_cd(lecture.getSemesterCd())
+                                .build();
+                        dtoList.add(dto);
                     }
                 }
             }
@@ -84,12 +79,9 @@ public class LectureInfoServiceImpl implements LectureInfoService {
     public List<LectureListsDTO> listLecture(Integer profId) {
         List<LectureListsDTO> dtos = new ArrayList<>();
 
-        System.err.println("listLecture에 들어옴");
-
         lectureInfoRepository.findByProfessor_ProfId(profId).forEach(lectureInfo -> {
 
             List<LectureContent> contents = lectureContentService.findLectureId(lectureInfo.getLectureId());
-            log.info("content - lectureId {} : {}개", lectureInfo.getLectureId(), contents.size());
 
             contents.forEach(lectureContent -> {
 
@@ -108,7 +100,6 @@ public class LectureInfoServiceImpl implements LectureInfoService {
                         .semester_cd(lectureInfo.getSemesterCd())
                         .build();
 
-                log.info("builder 생성: {}", dto);
                 dtos.add(dto);
             });
 

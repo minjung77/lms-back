@@ -4,6 +4,9 @@ package project.lmsback.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import project.lmsback.domain.File;
@@ -12,6 +15,8 @@ import project.lmsback.repository.FileRepository;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -75,6 +80,12 @@ public class FileServiceImpl implements FileService {
         return savedFile;
     }
 
+    @Override
+    public File downFile_uuid(String uuid) {
+        return fileRepository.findByUuid(uuid)
+                .orElseThrow(() -> new NoSuchElementException("File not found for uuid: " + uuid));
+    }
+
 
     private String makeUUID() {
         return java.time.LocalDateTime.now()
@@ -85,4 +96,6 @@ public class FileServiceImpl implements FileService {
     private int generateRandomInteger() {
         return (int) (Math.random() * 1000000000);
     }
+
+
 }

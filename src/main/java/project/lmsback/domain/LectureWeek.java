@@ -13,11 +13,13 @@ public class LectureWeek {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer lectweekId;
+
+    @Column(name = "WEEK_ID")
     private Integer weekId;
 
     @Column(name = "WEEK_NUMBER")
     private Integer weekNumber;
-
 
     @ManyToOne
     @JoinColumn(name = "LECTURE_ID")

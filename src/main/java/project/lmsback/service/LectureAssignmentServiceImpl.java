@@ -27,10 +27,9 @@ public class LectureAssignmentServiceImpl implements LectureAssingmentService{
 
     @Value("${savePdsDir}") private String savePdsDir;
 
+    @Transactional
     @Override
     public LectureAssignment assignmentUpload(AssignmentUploadDTO dto, MultipartFile files) {
-
-        System.err.println(">>>> dto >>>>> " + dto.toString());
 
         File fileDTO = new File();
 
@@ -64,15 +63,9 @@ public class LectureAssignmentServiceImpl implements LectureAssingmentService{
             throw new RuntimeException("파일 저장 실패");
         }
 
-
         LectureInfo lectureInfo = lectureInfoService.findByLectureId(dto.getLecture_id());
 
-        System.err.println(dto.getLecture_id());
-        System.err.println(dto.getWeek_id());
-
         LectureWeek lectureWeek = lectureWeekService.findByLectureAndWeekId(lectureInfo, dto.getWeek_id());
-
-        System.err.println(">>>> "+lectureWeek);
 
         LectureAssignment assignment = LectureAssignment.builder()
                 .description(dto.getDescription())
@@ -84,8 +77,6 @@ public class LectureAssignmentServiceImpl implements LectureAssingmentService{
                 .lecture(lectureInfo)
                 .week(lectureWeek)
                 .build();
-
-        System.err.println(assignment);
 
         lectureAssignmentRepository.save(assignment);
 
@@ -125,7 +116,6 @@ public class LectureAssignmentServiceImpl implements LectureAssingmentService{
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
     }
 
-    // 랜덤 숫자 생성
     private int generateRandomInteger() {
         return (int) (Math.random() * 1000000000);
     }

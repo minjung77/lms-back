@@ -20,9 +20,6 @@ public class LectureContentServiceImpl implements LectureContentService {
     public LectureContent lectureUpdateFile(LectureFileUploadDTO dto, File fileDTO) {
         LectureContent cont = lectureContentRepository.findByLecture_LectureIdAndOrderName(dto.getLecture_id(), dto.getChapter());
 
-        log.info(dto.getLecture_id() + " / " + dto.getChapter());
-        log.info("cont ::: {}",cont);
-
         cont.setYoutubeVideoId(dto.getVideoId());
         cont.setFile(fileDTO);
 
